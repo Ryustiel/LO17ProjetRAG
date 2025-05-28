@@ -1,0 +1,4 @@
+database/documents/
+database/chroma_db/
+*.pyc
+.env

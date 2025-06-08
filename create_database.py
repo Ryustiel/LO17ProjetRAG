@@ -3,7 +3,7 @@ Construit la base de données vectorielle à partir des fichiers divers contenus
 """
 
 from typing import List
-import os, dotenv, PyPDF2, chromadb, chromadb.utils.embedding_functions
+import os, dotenv, PyPDF2, chromadb.utils.embedding_functions
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 
 dotenv.load_dotenv()
@@ -65,7 +65,7 @@ print(f"{len(docs)} documents chargés.")
 print("Documents indexés dans la base de données vectorielle.")
     
 generate_title = lambda doc: ChatGoogleGenerativeAI(
-        model="gemini-1.5-flash-latest", 
+        model="gemini-2.5-flash-preview-05-20",
         temperature=0.7
     ).invoke(
         "Generate a title for the following document in the language of said document. "

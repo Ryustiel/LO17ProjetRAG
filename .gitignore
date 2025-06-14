@@ -1,4 +1,5 @@
 database/documents/
 database/chroma_db/
+dataset_rag_lol_definitive/
 *.pyc
 .env

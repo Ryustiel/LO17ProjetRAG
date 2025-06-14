@@ -12,27 +12,10 @@ from ragas.metrics import Faithfulness, AnswerCorrectness
 from langchain_core.messages import SystemMessage, HumanMessage
 from tqdm import tqdm
 
-import rag_core as core
-
-print("Initialisation des modèles et de l'évaluateur...")
-
-llm = core.llm
-
-# Wrapper Ragas pour le LLM
-ragas_llm = LangchainLLMWrapper(llm)
-embedding_model_for_ragas = core.embedding_model
-
-# Initialisation des métriques comme dans les slides
-# Faithfulness: vérifie que la réponse est basée sur le contexte
-faithfulness_evaluator = Faithfulness(llm=ragas_llm)
-print("Métrique 'Faithfulness' initialisée.")
-
-# AnswerCorrectness: vérifie la justesse de la réponse par rapport à une référence
-correctness_evaluator = AnswerCorrectness(llm=ragas_llm, weights=[1, 0])
-print("Métrique 'AnswerCorrectness' initialisée.")
+from rag_core import get_llm, get_embedding_model, query
 
 
-def generate_rag_answers(eval_df: pd.DataFrame) -> list:
+def generate_rag_answers(eval_df: pd.DataFrame, llm) -> list:
     """
     Génère les réponses et récupère les contextes pour tout le dataframe.
     """
@@ -45,7 +28,7 @@ def generate_rag_answers(eval_df: pd.DataFrame) -> list:
         ground_truth = row["reponse_attendue"]
 
         # 1. Retrieval
-        retrieved_contexts_docs = core.query(question, n_results=5)
+        retrieved_contexts_docs = query(question, n_results=5)
         retrieved_contexts_str = [doc.content for doc in retrieved_contexts_docs]
 
         # 2. Augmentation & Generation
@@ -74,6 +57,19 @@ def main():
     """
     Script principal pour lancer l'évaluation par lot.
     """
+    # --- Initialisation des modèles dans la fonction main ---
+    print("Initialisation des modèles et de l'évaluateur...")
+    llm = get_llm()
+    embedding_model = get_embedding_model()
+
+    ragas_llm = LangchainLLMWrapper(llm)
+
+    # Initialisation des métriques
+    faithfulness_evaluator = Faithfulness(llm=ragas_llm)
+    print("Métrique 'Faithfulness' initialisée.")
+    correctness_evaluator = AnswerCorrectness(llm=ragas_llm, weights=[1, 0])
+    print("Métrique 'AnswerCorrectness' initialisée.")
+
     evaluation_file_path = os.path.join("dataset_rag_lol_definitive", "evaluation.csv")
     if not os.path.exists(evaluation_file_path):
         print(f"\n[ERREUR] Le fichier '{evaluation_file_path}' n'a pas été trouvé.")
@@ -83,7 +79,7 @@ def main():
     eval_df = pd.read_csv(evaluation_file_path)
 
     # Étape 1: Générer toutes les réponses et contextes en premier
-    evaluation_data = generate_rag_answers(eval_df)
+    evaluation_data = generate_rag_answers(eval_df, llm)
 
     # Étape 2: Convertir la liste en format Dataset pour Ragas
     evaluation_dataset = Dataset.from_list(evaluation_data)
@@ -98,7 +94,7 @@ def main():
             faithfulness_evaluator,
             correctness_evaluator,
         ],
-        embeddings=embedding_model_for_ragas,
+        embeddings=embedding_model,
         run_config=run_config,
     )
 

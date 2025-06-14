@@ -187,7 +187,9 @@ def create_evaluation_file():
     """Génère le fichier CSV d'évaluation."""
     print("\n3. Création du fichier d'évaluation...")
 
-    existing_files = {f for f in os.listdir(KNOWLEDGE_BASE_DIR) if f.endswith(".txt")}
+    existing_files = {
+        f.lower() for f in os.listdir(KNOWLEDGE_BASE_DIR) if f.endswith(".txt")
+    }
     questions = []
 
     potential_questions = [
@@ -198,7 +200,7 @@ def create_evaluation_file():
             "vi.txt;jinx.txt",
         ),
         (
-            ("zoe.txt"),
+            ("zoe.txt",),
             "Quel personnage est associé à la thématique du crépuscule? à quels autres sujets cette thématique est-elle liée ?",
             "Il s'agit de Zoe, la Manifestation du Crépuscule. Cette thématique est liée au changement.",
             "zoe.txt",
@@ -230,8 +232,12 @@ def create_evaluation_file():
     ]
 
     for files_needed, q, a, s in potential_questions:
-        if all(f in existing_files for f in files_needed):
+        if all(f.lower() in existing_files for f in files_needed):
             questions.append([q, a, s])
+        else:
+            print(
+                f"[AVERTISSEMENT] Question ignorée car les fichiers requis ne sont pas tous présents : {files_needed}"
+            )
 
     questions.append(
         [

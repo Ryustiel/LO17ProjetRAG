@@ -32,20 +32,18 @@ def get_llm():
     )
 
 
-# Instances globales ("singletons") pour tout le projet
-llm = get_llm()
 client = get_chroma_client()
-embedding_model = get_embedding_model()
-chroma_compatible_google_ef = (
+chroma_embedding_function = (
     chromadb.utils.embedding_functions.ChromaLangchainEmbeddingFunction(
-        embedding_function=embedding_model
+        embedding_function=get_embedding_model()
     )
 )
+
 documents_collection = client.get_or_create_collection(
-    name="documents", embedding_function=chroma_compatible_google_ef
+    name="documents", embedding_function=chroma_embedding_function
 )
 titles_collection = client.get_or_create_collection(
-    name="titles", embedding_function=chroma_compatible_google_ef
+    name="titles", embedding_function=chroma_embedding_function
 )
 
 

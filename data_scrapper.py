@@ -198,10 +198,10 @@ def create_evaluation_file():
             "vi.txt;jinx.txt",
         ),
         (
-            ("garen.txt", "darius.txt"),
-            "Comparer Garen et Darius.",
-            "Garen est un soldat d'élite de Demacia, loyal à son roi. Darius est un général impitoyable de Noxus qui ne croit qu'en la force.",
-            "garen.txt;darius.txt",
+            ("zoe.txt"),
+            "Quel personnage est associé à la thématique du crépuscule? à quels autres sujets cette thématique est-elle liée ?",
+            "Il s'agit de Zoe, la Manifestation du Crépuscule. Cette thématique est liée au changement.",
+            "zoe.txt",
         ),
         (
             ("jayce.txt", "viktor.txt"),
@@ -216,16 +216,16 @@ def create_evaluation_file():
             "caitlyn.txt;vi.txt",
         ),
         (
-            ("nasus.txt", "renekton.txt"),
-            "Pourquoi Renekton en veut-il à son frère Nasus ?",
-            "Renekton croit à tort que Nasus l'a trahi en l'enfermant dans un tombeau pendant des millénaires.",
-            "nasus.txt;renekton.txt",
+            ("xerath.txt", "azir.txt"),
+            "Quel personnage s'est fait trahir par son serviteur ?",
+            "Azir s'est fait trahir par son serviteur Xerath.",
+            "xerath.txt;azir.txt",
         ),
         (
-            ("ambessa.txt", "mel.txt"),
-            "Quelle est la relation entre Ambessa et Mel ?",
-            "Ambessa est la mère de Mel. C'est une relation complexe où Ambessa, une seigneur de guerre noxienne, a exilé sa fille Mel à Piltover.",
-            "ambessa.txt;mel.txt",
+            ("jhin.txt", "hwei.txt"),
+            "Quel chiffre est associé à une obsession pour la mort ? Dans quelle région ?",
+            "Le chiffre 4 est associé à une obsession pour la mort, dans la région de Ionia.",
+            "jhin.txt;hwei.txt",
         ),
     ]
 
@@ -235,16 +235,16 @@ def create_evaluation_file():
 
     questions.append(
         [
-            "Garen est-il originaire de Zaun ?",
-            "Non, Garen est originaire de Demacia.",
-            "garen.txt;demacia.txt",
+            "Quelles sont les régions majoritairement maritimes ?",
+            "Bilgewater et les Iles Obscures.",
+            "bilgewater.txt;shadow-isles.txt",
         ]
     )
     questions.append(
         [
-            "Qui sont les parents de Jinx ?",
-            "L'information n'est pas clairement précisée dans les textes, seulement qu'ils sont morts.",
-            "jinx.txt;vi.txt",
+            "Le sol se fissure et englouti les terres, que cause ce phénomène ?",
+            "Ce phénomène est causé par le Néant.",
+            "kaisa.txt;belveth.txt;void.txt",
         ]
     )
 

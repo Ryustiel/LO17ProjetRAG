@@ -92,7 +92,7 @@ spec:
 
       initContainers:
         - name: setup-container
-          image: registry.digitalocean.com/team-container/lo17:latest2
+          image: registry.digitalocean.com/team-container/lo17:latest
           imagePullPolicy: Always
           command: ["uv", "run", "sh", "-c"]
           args:
@@ -119,7 +119,7 @@ spec:
 
       containers:
         - name: lo17-rag-app-container
-          image: registry.digitalocean.com/team-container/lo17:latest2
+          image: registry.digitalocean.com/team-container/lo17:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8501

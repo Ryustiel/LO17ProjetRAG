@@ -65,11 +65,14 @@ with tab_chat:
                         if isinstance(chunk, str):
                             status.update(label=f"Recherche avec la query : `{chunk}`")
                         elif isinstance(chunk, list):
-                            sources_for_storage[:] = chunk
+                            sorted_chunk = sorted(
+                                chunk, key=lambda doc: doc.rating, reverse=True
+                            )
+                            sources_for_storage[:] = sorted_chunk
                             with source_expander_placeholder.expander(
                                 "Sources utilisées pour la réponse"
                             ):
-                                for documents in chunk:
+                                for documents in sorted_chunk:
                                     st.markdown(
                                         f"**- {documents.title}** (Score: {documents.rating})"
                                     )

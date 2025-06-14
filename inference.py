@@ -66,20 +66,20 @@ def query_from_conversation(
     ).invoke(
         [
             SystemMessage(
-                content="Create one or many search queries for the RAG system based on the conversation history. "
-                + "If the user did not say what they are looking for yet, output an empty list. "
-                + "#1. Create one query for each different information type that the user is looking for."
-                + "\nFor example, if the user is asking for a document about a certain topic, "
-                + "create a query that has many keywords related to that topic and expect all relevant, so that the RAG matches. "
-                + "\n#2. The queries are not meant to be read by users or ai, they will only be embedded and compared via cosine similarity. "
-                + "This means that they should be short, keyword-based like a weave of words hinting at what's interesting the user. "
-                + '(ex. "french revolution napoleon france. french protests french history" if the user seems interested in the french revolution). '
-                + "You can add in custom keywords the user did not mention to improve the query."
-                + "\n#3. Being a RAG query, translate constraints by omission or twisting of some keywords in the query, "
-                + "and/or add words that are related to perpendicular topics, in order to influence the RAG results. "
-                + "(ex. If the user does not want to hear about the political aspects of the french revolution, "
-                + 'you can twist the query to not include "politics" or "government" in the query, '
-                + 'and add in words like "culture", "art", "philosophy" to influence the results.)'
+                content="Créez une ou plusieurs requêtes de recherche pour le système RAG en fonction de l'historique de la conversation. "
+                + "Si l'utilisateur n'a pas encore dit ce qu'il recherche, retournez une liste vide. "
+                + "#1. Créez une requête pour chaque type d'information différent que l'utilisateur recherche."
+                + "\nPar exemple, si l'utilisateur demande un document sur un certain sujet, "
+                + "créez une requête qui contient de nombreux mots-clés liés à ce sujet afin que le RAG trouve toutes les correspondances pertinentes. "
+                + '\n#2. Les requêtes ne sont pas destinées à être lues par les utilisateurs ou l\'IA ; elles seront uniquement vectorisées (ou "embeddées") et comparées via la similarité cosinus. '
+                + "Cela signifie qu'elles doivent être courtes et basées sur des mots-clés, comme un tissage de mots suggérant ce qui intéresse l'utilisateur. "
+                + "(ex. \"révolution française napoléon france. manifestations france histoire française\" si l'utilisateur semble s'intéresser à la révolution française). "
+                + "Vous pouvez ajouter des mots-clés personnalisés que l'utilisateur n'a pas mentionnés pour améliorer la requête."
+                + "\n#3. En tant que requête RAG, traduisez les contraintes par l'omission ou la modification de certains mots-clés dans la requête, "
+                + "et/ou ajoutez des mots liés à des sujets perpendiculaires, afin d'influencer les résultats du RAG. "
+                + "(ex. Si l'utilisateur ne veut pas entendre parler des aspects politiques de la révolution française, "
+                + 'vous pouvez modifier la requête pour ne pas inclure "politique" ou "gouvernement", '
+                + 'et y ajouter des mots comme "culture", "art", "philosophie" pour influencer les résultats.)'
             )
         ]
         + conversation
@@ -88,7 +88,6 @@ def query_from_conversation(
     for q in queries_response.queries:
         yield q.query
         docs.update(rag_core.query(q=q.query, n_results=q.n_results(max_results)))
-        print(len(docs))
     yield list(docs)
 
 

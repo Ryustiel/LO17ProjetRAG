@@ -6,6 +6,7 @@ import os
 import dotenv
 import chromadb.utils.embedding_functions
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 dotenv.load_dotenv()
 
@@ -15,6 +16,11 @@ dotenv.load_dotenv()
 def get_embedding_model():
     """Crée et retourne une instance du modèle d'embedding LangChain."""
     return GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
+
+
+def get_embedding_model_openai():
+    """Crée et retourne une instance du modèle d'embedding OpenAI."""
+    return OpenAIEmbeddings(model="text-embedding-3-small")
 
 
 def get_chroma_client():
@@ -28,6 +34,14 @@ def get_llm():
     """Crée et retourne une instance du LLM."""
     return ChatGoogleGenerativeAI(
         model="gemini-2.5-flash-preview-05-20",
+        temperature=0.7,
+    )
+
+
+def get_llm_openai():
+    """Crée et retourne une instance du LLM OpenAI."""
+    return ChatOpenAI(
+        model="gpt-4.1",
         temperature=0.7,
     )
 

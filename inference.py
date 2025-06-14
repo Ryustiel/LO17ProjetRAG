@@ -13,7 +13,7 @@ from langchain_core.messages import (
 import rag_core
 
 
-llm = rag_core.llm
+llm = rag_core.get_llm()
 Document = rag_core.Document
 
 

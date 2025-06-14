@@ -41,7 +41,7 @@ with tab_chat:
             st.markdown(msg.content)
             if isinstance(msg, AIMessage) and "sources" in msg.additional_kwargs:
                 if msg.additional_kwargs["sources"]:
-                    with st.expander("Sources consultées"):
+                    with st.expander("Parchemins consultées"):
                         for doc in msg.additional_kwargs["sources"]:
                             st.markdown(f"**- {doc.title}** (Score: {doc.rating})")
                             st.markdown("---")
@@ -66,15 +66,15 @@ with tab_chat:
                             status.update(label=f"Recherche avec la query : `{chunk}`")
                         elif isinstance(chunk, list):
                             sorted_chunk = sorted(
-                                chunk, key=lambda doc: doc.rating, reverse=True
+                                chunk, key=lambda doc: doc.rating, reverse=False
                             )
                             sources_for_storage[:] = sorted_chunk
                             with source_expander_placeholder.expander(
-                                "Sources utilisées pour la réponse"
+                                "Tomes étudiés pour cette réponse"
                             ):
-                                for documents in sorted_chunk:
+                                for document in sorted_chunk:
                                     st.markdown(
-                                        f"**- {documents.title}** (Score: {documents.rating})"
+                                        f"**- {document.title}** (Score: {document.rating})"
                                     )
                                     st.markdown("---")
                         elif isinstance(chunk, AIMessageChunk):

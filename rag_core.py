@@ -33,7 +33,7 @@ def get_chroma_client():
 def get_llm():
     """Crée et retourne une instance du LLM."""
     return ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash-preview-05-20",
         temperature=0.7,
     )
 
@@ -78,18 +78,31 @@ def query(q: str, n_results: int) -> List[Document]:
         query_texts=[q],
         n_results=n_results,
     )
-    if not document_results or not document_results["ids"][0]:
+    if not document_results or not document_results["ids"] or not document_results["ids"][0]:
         return []
 
-    ids = document_results["ids"][0]
-    titles_results = titles_collection.get(ids=ids)
+    doc_ids_ordered = document_results["ids"][0]
+    doc_distances_ordered = document_results["distances"][0]
+    doc_contents_ordered = document_results["documents"][0]
 
-    return [
-        Document(
-            id=ids[i],
-            rating=round(document_results["distances"][0][i], 2),
-            title=titles_results["documents"][i],
-            content=document_results["documents"][0][i],
+    titles_data = titles_collection.get(ids=doc_ids_ordered)
+
+    title_map = {}
+    if titles_data and titles_data["ids"] and titles_data["documents"]:
+        for i in range(len(titles_data["ids"])):
+            title_map[titles_data["ids"][i]] = titles_data["documents"][i]
+
+    final_documents = []
+    for i in range(len(doc_ids_ordered)):
+        current_id = doc_ids_ordered[i]
+        current_title = title_map.get(current_id, "Titre non disponible")
+        final_documents.append(
+            Document(
+                id=current_id,
+                rating=round(doc_distances_ordered[i], 2),
+                title=current_title,
+                content=doc_contents_ordered[i],
+            )
         )
-        for i in range(len(ids))
-    ]
+
+    return final_documents

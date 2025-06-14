@@ -6,7 +6,7 @@ Ce script se base sur le fichier 'synthetic_evaluation.csv' généré par 'gener
 import os
 import pandas as pd
 from datasets import Dataset
-from ragas import evaluate
+from ragas import evaluate, RunConfig
 from ragas.llms import LangchainLLMWrapper
 from ragas.metrics import Faithfulness, AnswerCorrectness
 from langchain_core.messages import SystemMessage, HumanMessage
@@ -102,6 +102,7 @@ def main():
             correctness_evaluator,
         ],
         embeddings=embedding_model,
+        run_config=RunConfig(max_workers=1),
     )
 
     print("\n\n--- Fin de l'évaluation ---")

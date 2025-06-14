@@ -1,0 +1,54 @@
+# .streamlit/config.toml
+
+# Désactive les statistiques d'utilisation
+[browser]
+gatherUsageStats = false
+
+[server]
+enableStaticServing = true
+
+[theme]
+# Thème de base sur lequel s'appuyer
+base = "dark"
+
+# Couleur principale pour les éléments interactifs (boutons, sliders etc.)
+primaryColor = "#CDA434"
+
+# Couleurs de fond
+backgroundColor = "#010A13"
+secondaryBackgroundColor = "#091428"
+
+# Couleur du texte
+textColor = "#F0E6D2"
+
+borderColor = "#1E2833"
+
+# Police de caractères
+font = "beaufort"
+
+[[theme.fontFaces]]
+family = "beaufort"
+url = "app/static/BeaufortforLOL-Regular.ttf"
+weight = 400
+style = "normal"
+
+# Police Grasse (Bold)
+[[theme.fontFaces]]
+family = "beaufort"
+url = "app/static/BeaufortforLOL-Bold.ttf"
+weight = 700
+style = "normal"
+
+# Police Italique (Italic)
+[[theme.fontFaces]]
+family = "beaufort"
+url = "app/static/BeaufortforLOL-Italic.ttf"
+weight = 400
+style = "italic"
+
+# Police Grasse et Italique (Bold Italic)
+[[theme.fontFaces]]
+family = "beaufort"
+url = "app/static/BeaufortforLOL-BoldItalic.ttf"
+weight = 700
+style = "italic"

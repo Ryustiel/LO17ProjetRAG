@@ -2,11 +2,10 @@ import streamlit as st
 from langchain_core.messages import AIMessage, HumanMessage, AIMessageChunk
 
 # Configuration de la page
-st.set_page_config(
-    page_title="Recherche & Chat avec RAG", page_icon="📚", layout="wide"
-)
+st.set_page_config(page_title="Chroniqueur de Runeterra", page_icon="📜", layout="wide")
 
 import inference
+import rag_core as core
 
 # Initialisation des états de session
 if "chat_messages" not in st.session_state:
@@ -19,9 +18,9 @@ if "generating" not in st.session_state:
     st.session_state.generating = False
 
 # Titre de l'application
-st.title("📚 Recherche & Chat avec Base Documentaire (RAG)")
+st.title("📜 Chroniqueur de Runeterra")
 st.caption(
-    "Une interface pour interroger une base de connaissances via recherche vectorielle et un assistant LLM."
+    "Interrogez les archives de League of Legends. Posez vos questions sur les champions et les régions."
 )
 
 # Création des onglets
@@ -29,7 +28,8 @@ tab_chat, tab_search = st.tabs(["💬 Chat avec l'assistant", "🔍 Recherche Di
 
 # --- Onglet Chatbot ---
 with tab_chat:
-    st.header("Discutez avec vos documents")
+    st.markdown("## ⚔️ Discutez avec vos documents")
+    st.markdown("---")
     st.write(
         "Posez vos questions en langage naturel. L'assistant utilisera les documents de la base pour vous répondre."
     )
@@ -102,7 +102,7 @@ with tab_chat:
     if prompt := st.chat_input(
         "Votre question...", disabled=st.session_state.generating
     ):
-        st.session_state.chat_messages.append(HumanMessage(content=prompt))
+        st.session_state.chat_messages.append(HumanMessage(content=prompt))  # type: ignore
         st.session_state.generating = True
         st.rerun()
 
@@ -128,7 +128,7 @@ with tab_search:
             st.warning("Veuillez entrer une requête de recherche.")
         else:
             with st.spinner("Recherche en cours..."):
-                results = inference.query(search_query, n_results)
+                results = core.query(search_query, n_results)
 
             if not results:
                 st.info("Aucun document trouvé pour cette requête.")

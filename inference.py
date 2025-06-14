@@ -3,94 +3,18 @@ Définit les différentes fonctions d'inférence pour le frontend streamlit.
 """
 
 from typing import List, Literal, Iterator
-import pydantic, os, dotenv, chromadb.utils.embedding_functions
+import pydantic
 from langchain_core.messages import (
     BaseMessage,
     SystemMessage,
-    HumanMessage,
-    AIMessage,
     AIMessageChunk,
 )
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
-import streamlit as st
 
-dotenv.load_dotenv()
-
-# Initialisation de la base de données vectorielle
+import rag_core
 
 
-@st.cache_resource
-def get_embedding_function():
-    """Crée et retourne une instance unique de la fonction d'embedding."""
-    return chromadb.utils.embedding_functions.ChromaLangchainEmbeddingFunction(
-        embedding_function=GoogleGenerativeAIEmbeddings(
-            model="models/text-embedding-004"
-        )
-    )
-
-
-@st.cache_resource
-def get_chroma_client():
-    """Crée et retourne une instance unique du client ChromaDB."""
-    return chromadb.PersistentClient(
-        path=os.path.join(os.getcwd(), "database", "chroma_db")
-    )
-
-
-@st.cache_resource
-def get_llm():
-    """Crée et retourne une instance unique du LLM."""
-    return ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash-preview-05-20", temperature=0.7
-    )
-
-
-client = get_chroma_client()
-chroma_compatible_google_ef = get_embedding_function()
-llm = get_llm()  # Vous utiliserez cette instance dans vos fonctions de chat/summary
-
-documents = client.get_or_create_collection(
-    name="documents", embedding_function=chroma_compatible_google_ef
-)
-titles = client.get_or_create_collection(
-    name="titles", embedding_function=chroma_compatible_google_ef
-)
-
-# Modèle de document
-
-
-class Document(pydantic.BaseModel):
-    id: str
-    rating: float
-    title: str
-    content: str
-
-    def __hash__(self):
-        return hash(self.id)
-
-
-# Définition de la fonction d'inférence (retrieval)
-
-
-def query(q: str, n_results: int) -> List[Document]:
-    document_results = documents.query(
-        query_texts=[q],
-        n_results=n_results,
-    )
-    if not document_results:
-        return []
-
-    ids = document_results["ids"][0]
-    titles_results = titles.get(ids=ids)
-    return [
-        Document(
-            id=ids[i],
-            rating=round(document_results["distances"][0][i], 2),
-            title=titles_results["documents"][i],
-            content=document_results["documents"][0][i],
-        )
-        for i in range(len(ids))
-    ]
+llm = rag_core.llm
+Document = rag_core.Document
 
 
 # Définition de la fonction d'assistance LLM
@@ -120,7 +44,7 @@ class SearchQuery(pydantic.BaseModel):
         )
     )
 
-    def n_results(self, max_results: int) -> int:
+    def n_results(self, max_results: int) -> int | None:
         match self.result_expectation:
             case "one match":
                 return 2
@@ -163,7 +87,7 @@ def query_from_conversation(
     docs = set()
     for q in queries_response.queries:
         yield q.query
-        docs.update(query(q=q.query, n_results=q.n_results(max_results)))
+        docs.update(rag_core.query(q=q.query, n_results=q.n_results(max_results)))
         print(len(docs))
     yield list(docs)
 
@@ -189,14 +113,13 @@ def chat(
     it: Iterator[AIMessageChunk] = llm.stream(
         [
             SystemMessage(
-                content="Tu es un assistant de recherche qui présente aux utilisateurs les documents de la base de données fournis par le système de RAG. "
-                + "L'utilisateur formule des requêtes qui dictent les documents trouvés."
-                + "Tes réponses peuvent être de deux natures : 1. présenter les résultats de recherche, "
-                + "2. répondre à des questions de l'utilisateur en utilisant les documents trouvés."
-                + '\nSi l\'utilisateur formule une requête vague comme "je cherche des infos sur X", '
-                + "présente lui simplement les résultats de recherche et comment ils pourraient être en rapport avec sa requête."
-                + "Tu dois répondre en français, et utiliser les documents pour répondre aux questions de l'utilisateur. "
-                + "Tu peux utiliser des citations des documents pour appuyer tes réponses."
+                content="Salutations, voyageur ! Je suis un chroniqueur de Runeterra, gardien des récits de champions et des légendes des régions. Mon savoir provient des écrits que le système m'a fournis. "
+                + "Pose-moi tes questions sur les héros, les terres lointaines ou les rivalités qui façonnent ce monde. "
+                + "Ma mission est de te répondre en me basant fidèlement sur ces chroniques. "
+                + "Si ta question est précise, je te donnerai une réponse directe, puisant dans les textes. "
+                + "Si elle est plus vague, je te présenterai les parchemins qui me semblent les plus pertinents pour ta quête de connaissance. "
+                + "Dans tous les cas, je te répondrais uniquement à l'aide des documents fournis par le système, pas de mes connaissances personnelles. "
+                + "Je réponds toujours en français. N'hésite pas à citer des passages des documents pour appuyer tes réponses, si cela éclaire ton propos."
                 + "\nQuery Results:\n"
                 + "\n".join([f"{doc.title}\n{doc.content}" for doc in documents])
             ),

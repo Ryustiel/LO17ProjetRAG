@@ -1,0 +1,148 @@
+# k8s-lo17-rag-app.yaml
+
+# --- PersistentVolumeClaim (PVC) ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lo17-rag-db-pvc
+  labels:
+    app: lo17-rag-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+# --- Service ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lo17-rag-service
+  labels:
+    app: lo17-rag-app
+spec:
+  type: ClusterIP
+  selector:
+    app: lo17-rag-app
+  ports:
+    - name: http-streamlit
+      protocol: TCP
+      port: 80
+      targetPort: 8501
+
+---
+# --- Ingress ---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lo17-rag-ingress
+  labels:
+    app: lo17-rag-app
+  annotations:
+    nginx.ingress.kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/issuer: "dns-cloudflare"
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - lo17.raphcvr.me
+      secretName: lo17-raphcvr-me-tls
+  rules:
+    - host: lo17.raphcvr.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: lo17-rag-service
+                port:
+                  number: 80
+
+---
+# --- Deployment ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lo17-rag-deployment
+  labels:
+    app: lo17-rag-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lo17-rag-app
+  template:
+    metadata:
+      labels:
+        app: lo17-rag-app
+    spec:
+      securityContext:
+        fsGroup: 1001
+      volumes:
+        - name: db-storage
+          persistentVolumeClaim:
+            claimName: lo17-rag-db-pvc
+
+      initContainers:
+        - name: setup-container
+          image: registry.digitalocean.com/team-container/lo17:latest2
+          imagePullPolicy: Always
+          command: ["uv", "run", "sh", "-c"]
+          args:
+            - echo "--- Démarrage du scraping des données ---" &&
+              python data_scrapper.py &&
+              echo "--- Scraping terminé. Création de la base de données ---" &&
+              python create_database.py &&
+              echo "--- Initialisation de la base de données terminée ---"
+          volumeMounts:
+            - name: db-storage
+              mountPath: /app/database
+          env:
+            - name: GOOGLE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: google-api-secret
+                  key: apiKey
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openai-api-secret
+                  key: apiKey
+      # ---------------------------------
+
+      containers:
+        - name: lo17-rag-app-container
+          image: registry.digitalocean.com/team-container/lo17:latest2
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8501
+          # Cette commande ne démarre que lorsque l'Init Container a réussi
+          command: ["uv", "run", "streamlit", "run", "streamlit_app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+          volumeMounts:
+            - name: db-storage
+              mountPath: /app/database
+          env:
+            - name: GOOGLE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: google-api-secret
+                  key: apiKey
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openai-api-secret
+                  key: apiKey
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+            requests:
+              memory: "128Mi"
+              cpu: "100m"

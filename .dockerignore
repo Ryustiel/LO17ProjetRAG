@@ -1,0 +1,26 @@
+# Fichiers et dossiers Git
+.git
+.gitignore
+
+# Environnements virtuels Python
+.venv
+venv/
+*.pyc
+__pycache__/
+
+# Fichiers de configuration de l'IDE
+.vscode/
+.idea/
+
+# Fichiers Docker
+Dockerfile
+.dockerignore
+
+# Données locales (la base de données et les datasets doivent être montés via des volumes)
+database/
+dataset_rag_lol_definitive/
+
+# Fichiers de développement et de résultats
+evaluation_results.csv
+playground.ipynb
+*.log

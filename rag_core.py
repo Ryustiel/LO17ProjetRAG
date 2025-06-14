@@ -33,7 +33,7 @@ def get_chroma_client():
 def get_llm():
     """Crée et retourne une instance du LLM."""
     return ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash-preview-05-20",
+        model="gemini-2.0-flash",
         temperature=0.7,
     )
 

@@ -11,7 +11,7 @@ import rag_core as core
 if "chat_messages" not in st.session_state:
     st.session_state.chat_messages = [
         AIMessage(
-            content="Bonjour ! Comment puis-je vous aider à explorer les documents ?"
+            content="Salutations, Invocateur ! Je suis le Chroniqueur de Runeterra. Demandez-moi ce que vous souhaitez savoir sur les champions et les régions, et je consulterai mes archives pour vous éclairer."
         )
     ]
 if "generating" not in st.session_state:
@@ -28,7 +28,7 @@ tab_chat, tab_search = st.tabs(["💬 Chat avec l'assistant", "🔍 Recherche Di
 
 # --- Onglet Chatbot ---
 with tab_chat:
-    st.markdown("## ⚔️ Discutez avec vos documents")
+    st.markdown("## ⚔️ Interrogez les Chroniques de Runeterra")
     st.markdown("---")
     st.write(
         "Posez vos questions en langage naturel. L'assistant utilisera les documents de la base pour vous répondre."
@@ -111,7 +111,7 @@ with tab_chat:
 
 # --- Onglet Recherche Directe ---
 with tab_search:
-    st.header("Recherche directe dans la base de documents")
+    st.header("Exploration directe des Archives")
     st.write(
         "Entrez des mots-clés pour trouver les documents les plus pertinents. Appuyez sur 'Entrée' pour valider."
     )
@@ -119,7 +119,7 @@ with tab_search:
     with st.form(key="search_form"):
         search_query = st.text_input(
             "Votre requête de recherche :",
-            placeholder="ex: linguistique, histoire de france, napoléon...",
+            placeholder="ex: Jinx, Demacia, la relation entre Vi et Caitlyn...",
         )
         n_results = st.slider(
             "Nombre de résultats à retourner :", min_value=1, max_value=10, value=3

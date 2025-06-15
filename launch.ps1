@@ -135,6 +135,7 @@ do {
             Setup-Project
         }
         "2" {
+            $envFile = ".env"
             if (-not (Test-Path "database/chroma_db")) {
                 Write-Host-Colored "`n[ERREUR] La base de données n'existe pas. Veuillez d'abord lancer l'option 1." $ColorError
                 Read-Host "`nAppuyez sur Entrée pour retourner au menu..."
@@ -144,11 +145,16 @@ do {
                 try {
                     Write-Host-Colored "`nLancement de l'application Streamlit en arrière-plan..." $ColorInfo
                     $streamlitJob = Start-Job -ScriptBlock {
-                        param($workDir)
-                        Set-Location $workDir
-                        uv run --env-file $envFile streamlit run streamlit_app.py *> $null
-                    } -ArgumentList $PWD
+                        param($projectDir, $environmentFileName)
 
+                        Set-Location $projectDir
+                        Write-Host "Job: Répertoire de travail défini sur : $projectDir"
+                        Write-Host "Job: Utilisation du fichier d'environnement : $environmentFileName"
+                        Write-Host "Job: Lancement de Streamlit..."
+
+                        uv run --env-file $environmentFileName streamlit run streamlit_app.py
+
+                    } -ArgumentList $PWD, $envFile
                     # On attend un peu pour que le serveur démarre
                     Start-Sleep -Seconds 5
 
@@ -171,6 +177,7 @@ do {
             }
         }
         "3" {
+            $envFile = ".env"
             if ((-not (Test-Path "database/chroma_db")) -or (-not (Test-Path "dataset_rag_lol_definitive/synthetic_evaluation.csv"))) {
                  Write-Host-Colored "`n[ERREUR] La base de données ou le fichier d'évaluation 'synthetic_evaluation.csv' est manquant." $ColorError
                  Write-Host-Colored "Veuillez d'abord lancer l'option 1 (pour la base de données) et/ou l'option 4 (pour le fichier d'évaluation)." $ColorError

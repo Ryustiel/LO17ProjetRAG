@@ -15,11 +15,7 @@ dotenv.load_dotenv()
 
 def get_embedding_model():
     """Crée et retourne une instance du modèle d'embedding LangChain."""
-    dotenv.load_dotenv()
-    api_key = os.getenv("GOOGLE_API_KEY")
-    return GoogleGenerativeAIEmbeddings(
-        model="models/text-embedding-004", google_api_key=api_key
-    )
+    return GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
 
 
 def get_embedding_model_openai():

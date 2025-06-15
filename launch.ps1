@@ -104,10 +104,11 @@ function Setup-Project {
     Write-Host-Colored "Dépendances installées." $ColorSuccess
 
     Write-Host-Colored "`n3. Construction de la base de connaissances (cela peut prendre quelques minutes)..." $ColorInfo
+    $envFilePath = Join-Path $PWD ".env"
     Write-Host-Colored "   - Étape 3a: Scraping des données..." $ColorInfo
-    uv run data_scrapper.py; if ($LASTEXITCODE -ne 0) { Write-Host-Colored "Erreur." $ColorError; return }
+    uv run --env-file $envFilePath data_scrapper.py; if ($LASTEXITCODE -ne 0) { Write-Host-Colored "Erreur." $ColorError; return }
     Write-Host-Colored "   - Étape 3b: Création de la base de données vectorielle..." $ColorInfo
-    uv run create_database.py; if ($LASTEXITCODE -ne 0) { Write-Host-Colored "Erreur." $ColorError; return }
+    uv run --env-file $envFilePath create_database.py; if ($LASTEXITCODE -ne 0) { Write-Host-Colored "Erreur." $ColorError; return }
 
     Write-Host-Colored "`n--- Installation complète terminée avec succès ! ---`n" $ColorSuccess
 }
@@ -145,7 +146,7 @@ do {
                     $streamlitJob = Start-Job -ScriptBlock {
                         param($workDir)
                         Set-Location $workDir
-                        uv run streamlit run streamlit_app.py *> $null
+                        uv run --env-file $envFile streamlit run streamlit_app.py *> $null
                     } -ArgumentList $PWD
 
                     # On attend un peu pour que le serveur démarre
@@ -175,7 +176,7 @@ do {
                  Write-Host-Colored "Veuillez d'abord lancer l'option 1 (pour la base de données) et/ou l'option 4 (pour le fichier d'évaluation)." $ColorError
             } else {
                 Write-Host-Colored "`nLancement de l'évaluation... Les résultats s'afficheront ici." $ColorInfo
-                uv run evaluation.py
+                uv run --env-file $envFile evaluation.py
                 Write-Host-Colored "`nÉvaluation terminée. Les résultats détaillés sont dans 'evaluation_results.csv'." $ColorSuccess
             }
         }
@@ -200,7 +201,7 @@ do {
                 Write-Host-Colored "Veuillez d'abord lancer l'option 1 pour scraper les données et créer la base de connaissances." $ColorError
             } else {
                 Write-Host-Colored "Lancement de 'generate_testset.py' (cela peut prendre quelques minutes et consommer des crédits API)..." $ColorInfo
-                uv run generate_testset.py
+                uv run --env-file $envFile generate_testset.py
                 if ($LASTEXITCODE -ne 0) {
                     Write-Host-Colored "Erreur lors de la génération du jeu de données." $ColorError
                 } else {

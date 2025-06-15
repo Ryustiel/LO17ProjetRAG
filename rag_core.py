@@ -15,7 +15,11 @@ dotenv.load_dotenv()
 
 def get_embedding_model():
     """Crée et retourne une instance du modèle d'embedding LangChain."""
-    return GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
+    dotenv.load_dotenv()
+    api_key = os.getenv("GOOGLE_API_KEY")
+    return GoogleGenerativeAIEmbeddings(
+        model="models/text-embedding-004", google_api_key=api_key
+    )
 
 
 def get_embedding_model_openai():
@@ -78,7 +82,11 @@ def query(q: str, n_results: int) -> List[Document]:
         query_texts=[q],
         n_results=n_results,
     )
-    if not document_results or not document_results["ids"] or not document_results["ids"][0]:
+    if (
+        not document_results
+        or not document_results["ids"]
+        or not document_results["ids"][0]
+    ):
         return []
 
     doc_ids_ordered = document_results["ids"][0]

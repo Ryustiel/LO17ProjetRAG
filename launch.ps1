@@ -92,9 +92,9 @@ function Setup-Project {
     $googleApiKey = Read-Host -Prompt "Entrez votre GOOGLE_API_KEY"
     $openaiApiKey = Read-Host -Prompt "Entrez votre OPENAI_API_KEY (laissez vide si non disponible/nécessaire)"
 
-    $envContent = "GOOGLE_API_KEY=`"$googleApiKey`""
+    $envContent = "GOOGLE_API_KEY=$googleApiKey"
     if (-not [string]::IsNullOrEmpty($openaiApiKey)) {
-        $envContent += "`nOPENAI_API_KEY=`"$openaiApiKey`""
+        $envContent += "`nOPENAI_API_KEY=$openaiApiKey"
     }
     Set-Content -Path ".env" -Value $envContent -Encoding UTF8
     Write-Host-Colored "Fichier .env créé avec succès." $ColorSuccess

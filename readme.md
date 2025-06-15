@@ -78,7 +78,7 @@ Le script `launch.ps1` simplifie grandement l'installation et la gestion du proj
     Le script vous présentera un menu interactif :
     *   **Option 1 : Installation et Configuration Complète**
         *   Télécharge la dernière version du projet depuis GitHub.
-        *   Vous guide pour configurer vos clés API Google et OpenAI (qui seront stockées dans un fichier `.env`).
+        *   Vous guide pour configurer vos clés API Google et OpenAI (qui seront stockées dans un fichier `.env`). La clé OpenAI est nécessaire si vous souhaitez utiliser l'option 4.
         *   Installe toutes les dépendances Python nécessaires avec `uv`.
         *   Construit la base de connaissances en exécutant le scraping des données (`data_scrapper.py`) et la création de la base de données vectorielle (`create_database.py`).
     *   **Option 2 : Lancer l'application Streamlit (le site)**
@@ -86,8 +86,11 @@ Le script `launch.ps1` simplifie grandement l'installation et la gestion du proj
         *   Nécessite que l'installation (Option 1) ait été complétée au préalable.
     *   **Option 3 : Lancer l'évaluation du système RAG**
         *   Exécute le script d'évaluation (`evaluation.py`).
-        *   Nécessite que l'installation (Option 1) ait été complétée et que le jeu de données d'évaluation (`synthetic_evaluation.csv`) soit présent (généré lors de l'installation ou manuellement).
-    *   **Option 4 : Quitter**
+        *   Nécessite que l'installation (Option 1) ait été complétée et que le jeu de données d'évaluation (`synthetic_evaluation.csv`) soit présent (généré via l'option 1 ou l'option 4).
+    *   **Option 4 : Générer le jeu de données d'évaluation**
+        *   Exécute le script `generate_testset.py` pour créer `synthetic_evaluation.csv`.
+        *   Nécessite que l'installation (Option 1) ait été complétée (pour la base de connaissances) et que la clé `OPENAI_API_KEY` soit configurée dans le fichier `.env`.
+    *   **Option 5 : Quitter**
 
     Le script s'assure également que `uv` est installé sur votre système, et l'installe si ce n'est pas le cas.
 

@@ -90,7 +90,7 @@ function Setup-Project {
     Write-Host-Colored "`n1. Configuration des clés d'API" $ColorInfo
     Write-Host "Le projet a besoin d'une clé API Google (obligatoire) et OpenAI (optionnelle, pour créer le jeu de test)."
     $googleApiKey = Read-Host -Prompt "Entrez votre GOOGLE_API_KEY"
-    $openaiApiKey = Read-Host -Prompt "Entrez votre OPENAI_API_KEY (laissez vide si non disponible)"
+    $openaiApiKey = Read-Host -Prompt "Entrez votre OPENAI_API_KEY (laissez vide si non disponible/nécessaire)"
 
     $envContent = "GOOGLE_API_KEY=`"$googleApiKey`""
     if (-not [string]::IsNullOrEmpty($openaiApiKey)) {
@@ -124,8 +124,9 @@ do {
     Write-Host "   (Configure les clés API, installe les dépendances et crée la base de données)"
     Write-Host-Colored "2. Lancer l'application Streamlit (le site)" $ColorPrompt
     Write-Host-Colored "3. Lancer l'évaluation du système RAG" $ColorPrompt
-    Write-Host-Colored "4. Quitter" $ColorPrompt
-    
+    Write-Host-Colored "4. Générer le jeu de données d'évaluation" $ColorPrompt
+    Write-Host-Colored "5. Quitter" $ColorPrompt
+
     $choice = Read-Host "`nFaites votre choix"
 
     switch ($choice) {
@@ -135,6 +136,7 @@ do {
         "2" {
             if (-not (Test-Path "database/chroma_db")) {
                 Write-Host-Colored "`n[ERREUR] La base de données n'existe pas. Veuillez d'abord lancer l'option 1." $ColorError
+                Read-Host "`nAppuyez sur Entrée pour retourner au menu..."
             } else {
                 # On lance Streamlit en tant que tâche d'arrière-plan (Job)
                 $streamlitJob = $null
@@ -169,7 +171,8 @@ do {
         }
         "3" {
             if ((-not (Test-Path "database/chroma_db")) -or (-not (Test-Path "dataset_rag_lol_definitive/synthetic_evaluation.csv"))) {
-                 Write-Host-Colored "`n[ERREUR] La base de données ou le fichier d'évaluation est manquant. Veuillez d'abord lancer l'option 1." $ColorError
+                 Write-Host-Colored "`n[ERREUR] La base de données ou le fichier d'évaluation 'synthetic_evaluation.csv' est manquant." $ColorError
+                 Write-Host-Colored "Veuillez d'abord lancer l'option 1 (pour la base de données) et/ou l'option 4 (pour le fichier d'évaluation)." $ColorError
             } else {
                 Write-Host-Colored "`nLancement de l'évaluation... Les résultats s'afficheront ici." $ColorInfo
                 uv run evaluation.py
@@ -177,18 +180,50 @@ do {
             }
         }
         "4" {
+            Write-Host-Colored "`nGénération du jeu de données d'évaluation..." $ColorInfo
+            $envFile = ".env"
+            $knowledgeBasePath = "dataset_rag_lol_definitive/knowledge_base"
+            $openaiKeyPresent = $false
+
+            if (Test-Path $envFile) {
+                $envVars = Get-Content $envFile | ConvertFrom-StringData -Delimiter '='
+                if ($envVars.OPENAI_API_KEY -and $envVars.OPENAI_API_KEY.Trim() -ne "") {
+                    $openaiKeyPresent = $true
+                }
+            }
+
+            if (-not $openaiKeyPresent) {
+                Write-Host-Colored "`n[ERREUR] La clé OPENAI_API_KEY est manquante ou vide dans le fichier .env." $ColorError
+                Write-Host-Colored "Veuillez configurer la clé OpenAI via l'option 1 pour générer le jeu de données." $ColorError
+            } elseif (-not (Test-Path $knowledgeBasePath -PathType Container)) {
+                Write-Host-Colored "`n[ERREUR] Le dossier de la base de connaissances '$knowledgeBasePath' est manquant." $ColorError
+                Write-Host-Colored "Veuillez d'abord lancer l'option 1 pour scraper les données et créer la base de connaissances." $ColorError
+            } else {
+                Write-Host-Colored "Lancement de 'generate_testset.py' (cela peut prendre quelques minutes et consommer des crédits API)..." $ColorInfo
+                uv run generate_testset.py
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Host-Colored "Erreur lors de la génération du jeu de données." $ColorError
+                } else {
+                    Write-Host-Colored "Jeu de données d'évaluation 'synthetic_evaluation.csv' généré avec succès dans 'dataset_rag_lol_definitive/'." $ColorSuccess
+                }
+            }
+        }
+        "5" {
             Write-Host-Colored "À bientôt, Invocateur !" $ColorSuccess
         }
         default {
-            Write-Host-Colored "`nChoix invalide. Veuillez sélectionner une option de 1 à 4." $ColorWarning
+            Write-Host-Colored "`nChoix invalide. Veuillez sélectionner une option de 1 à 5." $ColorWarning
         }
     }
     
-    if ($choice -ne "4") {
+    if ($choice -ne "5") {
         if ($choice -ne "2") {
-            Read-Host "`nAppuyez sur Entrée pour retourner au menu..."
+            if (($choice -eq "2" -and (Test-Path "database/chroma_db")) -eq $false) {
+                 Read-Host "`nAppuyez sur Entrée pour retourner au menu..."
+            }
         }
         Clear-Host
     }
 
-} while ($choice -ne "4")
+} while ($choice -ne "5")
+

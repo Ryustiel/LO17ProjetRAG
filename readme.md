@@ -53,6 +53,46 @@ Le workflow de l'application suit les étapes classiques d'un pipeline RAG moder
 
 ## 🚀 Installation et Lancement Local
 
+Vous avez deux options pour installer et lancer le projet localement :
+
+1.  **Avec le Lanceur PowerShell (Recommandé pour Windows)** : Un script `launch.ps1` est fourni pour automatiser l'ensemble du processus.
+2.  **Manuellement** : Suivez les étapes ci-dessous si vous n'êtes pas sur Windows ou si vous préférez une installation manuelle.
+
+### Option 1 : Utilisation du Lanceur PowerShell (Windows)
+
+Le script `launch.ps1` simplifie grandement l'installation et la gestion du projet.
+
+1.  **Télécharger le lanceur** :
+    *   Téléchargez le fichier `launch.ps1` depuis le dépôt GitHub (vous pouvez le trouver à la racine du projet).
+    *   Placez-le dans un dossier de votre choix.
+
+2.  **Exécuter le script** :
+    *   Ouvrez une console PowerShell.
+    *   Naviguez jusqu'au dossier où vous avez placé `launch.ps1`.
+    *   Exécutez la commande suivante (vous pourriez avoir besoin d'ajuster votre politique d'exécution PowerShell si ce n'est pas déjà fait : `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force`) :
+        ```powershell
+        .\launch.ps1
+        ```
+
+3.  **Suivre les instructions du menu** :
+    Le script vous présentera un menu interactif :
+    *   **Option 1 : Installation et Configuration Complète**
+        *   Télécharge la dernière version du projet depuis GitHub.
+        *   Vous guide pour configurer vos clés API Google et OpenAI (qui seront stockées dans un fichier `.env`).
+        *   Installe toutes les dépendances Python nécessaires avec `uv`.
+        *   Construit la base de connaissances en exécutant le scraping des données (`data_scrapper.py`) et la création de la base de données vectorielle (`create_database.py`).
+    *   **Option 2 : Lancer l'application Streamlit (le site)**
+        *   Démarre l'application web Streamlit. Accessible ensuite via `http://localhost:8501`.
+        *   Nécessite que l'installation (Option 1) ait été complétée au préalable.
+    *   **Option 3 : Lancer l'évaluation du système RAG**
+        *   Exécute le script d'évaluation (`evaluation.py`).
+        *   Nécessite que l'installation (Option 1) ait été complétée et que le jeu de données d'évaluation (`synthetic_evaluation.csv`) soit présent (généré lors de l'installation ou manuellement).
+    *   **Option 4 : Quitter**
+
+    Le script s'assure également que `uv` est installé sur votre système, et l'installe si ce n'est pas le cas.
+
+### Option 2 : Installation Manuelle
+
 Suivez ces étapes pour lancer l'application sur votre machine.
 
 ### Prérequis
@@ -60,14 +100,14 @@ Suivez ces étapes pour lancer l'application sur votre machine.
   - Python 3.12+
   - Un gestionnaire de paquets comme `pip` ou `uv`.
 
-### 1\. Cloner le Dépôt
+### 1\. Cloner le Dépôt (si non fait par le script PowerShell)
 
 ```bash
 git clone https://github.com/Ryustel/LO17ProjetRAG.git
 cd LO17ProjetRAG
 ```
 
-### 2\. Installer les Dépendances
+### 2\. Installer les Dépendances (si non fait par le script PowerShell)
 
 Il est recommandé d'utiliser un environnement virtuel à l'aide d'uv ([**Installation d'uv**](https://docs.astral.sh/uv/getting-started/installation/)
 
@@ -77,17 +117,17 @@ Installez les dépendances listées dans `pyproject.toml` :
 uv sync
 ```
 
-### 3\. Configurer les Clés d'API
+### 3\. Configurer les Clés d'API (si non fait par le script PowerShell)
 
 Créez un fichier `.env` à la racine du projet et ajoutez vos clés d'API. Le projet utilise les modèles de Google pour le RAG et potentiellement OpenAI pour la génération du jeu de test.
 
 ```env
 # .env
 GOOGLE_API_KEY="VOTRE_CLE_API_GOOGLE"
-OPENAI_API_KEY="VOTRE_CLE_API_OPENAI"
+OPENAI_API_KEY="VOTRE_CLE_API_OPENAI" # Optionnelle, pour créer un jeu de test
 ```
 
-### 4\. Construire la Base de Connaissances
+### 4\. Construire la Base de Connaissances (si non fait par le script PowerShell)
 
 Ces scripts doivent être exécutés dans l'ordre.
 

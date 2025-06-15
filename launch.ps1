@@ -88,7 +88,7 @@ function Download-And-Unzip-Repo {
 function Setup-Project {
     Write-Host-Colored "--- Lancement de l'installation complète ---" $ColorTitle
     Write-Host-Colored "`n1. Configuration des clés d'API" $ColorInfo
-    Write-Host "Le projet a besoin d'une clé API Google (obligatoire) et OpenAI (optionnelle, pour l'évaluation)."
+    Write-Host "Le projet a besoin d'une clé API Google (obligatoire) et OpenAI (optionnelle, pour créer le jeu de test)."
     $googleApiKey = Read-Host -Prompt "Entrez votre GOOGLE_API_KEY"
     $openaiApiKey = Read-Host -Prompt "Entrez votre OPENAI_API_KEY (laissez vide si non disponible)"
 
@@ -105,9 +105,9 @@ function Setup-Project {
 
     Write-Host-Colored "`n3. Construction de la base de connaissances (cela peut prendre quelques minutes)..." $ColorInfo
     Write-Host-Colored "   - Étape 3a: Scraping des données..." $ColorInfo
-    uv run python data_scrapper.py; if ($LASTEXITCODE -ne 0) { Write-Host-Colored "Erreur." $ColorError; return }
+    uv run data_scrapper.py; if ($LASTEXITCODE -ne 0) { Write-Host-Colored "Erreur." $ColorError; return }
     Write-Host-Colored "   - Étape 3b: Création de la base de données vectorielle..." $ColorInfo
-    uv run python create_database.py; if ($LASTEXITCODE -ne 0) { Write-Host-Colored "Erreur." $ColorError; return }
+    uv run create_database.py; if ($LASTEXITCODE -ne 0) { Write-Host-Colored "Erreur." $ColorError; return }
 
     Write-Host-Colored "`n--- Installation complète terminée avec succès ! ---`n" $ColorSuccess
 }
@@ -172,7 +172,7 @@ do {
                  Write-Host-Colored "`n[ERREUR] La base de données ou le fichier d'évaluation est manquant. Veuillez d'abord lancer l'option 1." $ColorError
             } else {
                 Write-Host-Colored "`nLancement de l'évaluation... Les résultats s'afficheront ici." $ColorInfo
-                uv run python evaluation.py
+                uv run evaluation.py
                 Write-Host-Colored "`nÉvaluation terminée. Les résultats détaillés sont dans 'evaluation_results.csv'." $ColorSuccess
             }
         }
